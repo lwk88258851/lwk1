@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全等三角形判定定理小游戏</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle, #2a3a4a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            width: 100%;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 198, 255, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .author {
+            font-size: 1rem;
+            color: #7fdbff;
+            margin-top: 5px;
+        }
+
+        .score-display {
+            position: absolute;
+            right: 100px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 114, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            border: 1px solid #0072ff;
+            box-shadow: 0 0 15px rgba(0, 114, 255, 0.5);
+        }
+
+        .game-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .conditions-container {
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .conditions-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #7fdbff;
+            text-align: center;
+        }
+
+        .conditions-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(0, 114, 255, 0.1);
+            border: 2px dashed #0072ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 114, 255, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 80%;
+            height: 60px;
+            background: linear-gradient(135deg, #1e2a3a, #2c3e50);
+            border: 1px solid #0072ff;
+            border-radius: 8px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            font-size: 1rem;
+            color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 114, 255, 0.4);
+            background: linear-gradient(135deg, #2c3e50, #3a4e60);
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+
+        .card.dragging {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+
+        .triangles-container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .triangles-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #7fdbff;
+            text-align: center;
+        }
+
+        .triangles {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .triangle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .triangle svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .triangle-label {
+            position: absolute;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .triangle-abc .triangle-label-a {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .triangle-abc .triangle-label-b {
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .triangle-abc .triangle-label-c {
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .triangle-def .triangle-label-d {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .triangle-def .triangle-label-e {
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .triangle-def .triangle-label-f {
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .rules-container {
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rules-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #7fdbff;
+            text-align: center;
+        }
+
+        .rules-column {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .rules-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .rule-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(0, 114, 255, 0.1);
+            border: 2px dashed #0072ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 114, 255, 0.3);
+            position: relative;
+        }
+
+        .rule-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #7fdbff;
+            text-align: center;
+            position: absolute;
+            top: -15px;
+            background: #121212;
+            padding: 0 10px;
+        }
+
+        .rule-slot {
+            width: 90%;
+            height: 50px;
+            background: rgba(0, 114, 255, 0.05);
+            border: 1px dashed #0072ff;
+            border-radius: 6px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .rule-slot.highlight {
+            background: rgba(0, 114, 255, 0.2);
+            border: 1px solid #0072ff;
+        }
+
+        .rule-slot.filled {
+            background: rgba(0, 114, 255, 0.3);
+            border: 1px solid #0072ff;
+            color: #ffffff;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 114, 255, 0.1);
+            border: 1px solid #0072ff;
+            border-radius: 8px;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .instructions h3 {
+            color: #7fdbff;
+            margin-top: 0;
+        }
+
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e2a3a, #2c3e50);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            border: 1px solid #0072ff;
+            box-shadow: 0 0 30px rgba(0, 114, 255, 0.5);
+        }
+
+        .modal h2 {
+            color: #7fdbff;
+            margin-top: 0;
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-button {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .modal-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 114, 255, 0.5);
+        }
+
+        @media (max-width: 900px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .conditions-container, .triangles-container, .rules-container {
+                width: 90%;
+                margin-bottom: 30px;
+            }
+            
+            .score-display {
+                position: static;
+                transform: none;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">全等三角形判定定理小游戏</h1>
+        <p class="author">制作人-林维康</p>
+        <div class="score-display">得分: <span id="score">0</span> / 12</div>
+    </div>
+
+    <div class="game-container">
+        <div class="conditions-container">
+            <h2 class="conditions-title">条件</h2>
+            <div class="conditions-circle">
+                <div class="card" draggable="true" data-id="1">AB = DE</div>
+                <div class="card" draggable="true" data-id="2">BC = EF</div>
+                <div class="card" draggable="true" data-id="3">AC = DF</div>
+            </div>
+            <div class="conditions-circle">
+                <div class="card" draggable="true" data-id="4">∠A = ∠D</div>
+                <div class="card" draggable="true" data-id="5">∠B = ∠E</div>
+                <div class="card" draggable="true" data-id="6">∠C = ∠F</div>
+            </div>
+        </div>
+
+        <div class="triangles-container">
+            <h2 class="triangles-title">全等三角形 ABC ≅ DEF</h2>
+            <div class="triangles">
+                <div class="triangle triangle-abc">
+                    <svg viewBox="0 0 100 100">
+                        <polygon points="50,10 10,90 90,90" fill="none" stroke-width="2">
+                            <animate attributeName="stroke" values="#ff6b6b;#51cf66;#fcc419;#ff6b6b" dur="8s" repeatCount="indefinite" />
+                        </polygon>
+                        <line x1="50" y1="10" x2="10" y2="90" stroke="#ff6b6b" stroke-width="2" />
+                        <line x1="10" y1="90" x2="90" y2="90" stroke="#51cf66" stroke-width="2" />
+                        <line x1="90" y1="90" x2="50" y2="10" stroke="#fcc419" stroke-width="2" />
+                    </svg>
+                    <span class="triangle-label triangle-label-a">A</span>
+                    <span class="triangle-label triangle-label-b">B</span>
+                    <span class="triangle-label triangle-label-c">C</span>
+                </div>
+                <div class="triangle triangle-def">
+                    <svg viewBox="0 0 100 100">
+                        <polygon points="50,10 10,90 90,90" fill="none" stroke-width="2">
+                            <animate attributeName="stroke" values="#ff6b6b;#51cf66;#fcc419;#ff6b6b" dur="8s" repeatCount="indefinite" />
+                        </polygon>
+                        <line x1="50" y1="10" x2="10" y2="90" stroke="#ff6b6b" stroke-width="2" />
+                        <line x1="10" y1="90" x2="90" y2="90" stroke="#51cf66" stroke-width="2" />
+                        <line x1="90" y1="90" x2="50" y2="10" stroke="#fcc419" stroke-width="2" />
+                    </svg>
+                    <span class="triangle-label triangle-label-d">D</span>
+                    <span class="triangle-label triangle-label-e">E</span>
+                    <span class="triangle-label triangle-label-f">F</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rules-container">
+            <h2 class="rules-title">判定定理</h2>
+            <div class="rules-column">
+                <div class="rules-row">
+                    <div class="rule-circle" data-rule="sss">
+                        <div class="rule-title">SSS</div>
+                        <div class="rule-slot" data-position="any" data-accepted="1,2,3"></div>
+                        <div class="rule-slot" data-position="any" data-accepted="1,2,3"></div>
+                        <div class="rule-slot" data-position="any" data-accepted="1,2,3"></div>
+                    </div>
+                    <div class="rule-circle" data-rule="sas">
+                        <div class="rule-title">SAS</div>
+                        <div class="rule-slot" data-position="side" data-accepted="1,2,3" data-slot="side1"></div>
+                        <div class="rule-slot" data-position="angle" data-accepted="4,5,6" data-slot="angle"></div>
+                        <div class="rule-slot" data-position="side" data-accepted="1,2,3" data-slot="side2"></div>
+                    </div>
+                </div>
+                <div class="rules-row">
+                    <div class="rule-circle" data-rule="aas">
+                        <div class="rule-title">AAS</div>
+                        <div class="rule-slot" data-position="any" data-accepted="4,5,6"></div>
+                        <div class="rule-slot" data-position="any" data-accepted="4,5,6"></div>
+                        <div class="rule-slot" data-position="any" data-accepted="1,2,3"></div>
+                    </div>
+                    <div class="rule-circle" data-rule="asa">
+                        <div class="rule-title">ASA</div>
+                        <div class="rule-slot" data-position="angle" data-accepted="4,5,6"></div>
+                        <div class="rule-slot" data-position="side" data-accepted="1,2,3"></div>
+                        <div class="rule-slot" data-position="angle" data-accepted="4,5,6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>游戏说明</h3>
+        <p>将左侧的条件卡片拖拽到右侧对应的判定定理圆圈中，每个圆圈需要放入3个正确的条件卡片组合。</p>
+        <p>SSS: 三边对应相等 | SAS: 两边及夹角对应相等 (角必须在中间) | AAS: 两角及一边对应相等 | ASA: 两角及夹边对应相等 (边必须在中间)</p>
+        <p>SAS特定组合: (AB=DE或AC=DF, ∠A=∠D, AB=DE或AC=DF) 或 (AB=DE或BC=EF, ∠B=∠E, AB=DE或BC=EF) 或 (BC=EF或AC=DF, ∠C=∠F, BC=EF或AC=DF)</p>
+        <p>每个正确的组合得3分，全部答对将获得满分12分！</p>
+    </div>
+
+    <div class="modal" id="congrats-modal">
+        <div class="modal-content">
+            <h2>恭喜你！</h2>
+            <p>你的全等三角形判定定理掌握得非常好！</p>
+            <p>你已经成功完成了所有判定定理的正确组合，获得了满分！</p>
+            <button class="modal-button" id="close-modal">继续挑战</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            const slots = document.querySelectorAll('.rule-slot');
+            const scoreDisplay = document.getElementById('score');
+            const congratsModal = document.getElementById('congrats-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            
+            let score = 0;
+            let draggedCard = null;
+            
+            // 定义正确的组合
+            const correctCombinations = {
+                sss: [[1, 2, 3]],
+                sas: [
+                    [1, 4, 3], [3, 4, 1],  // AB=DE或AC=DF, ∠A=∠D, AB=DE或AC=DF
+                    [1, 5, 2], [2, 5, 1],  // AB=DE或BC=EF, ∠B=∠E, AB=DE或BC=EF
+                    [2, 6, 3], [3, 6, 2]   // BC=EF或AC=DF, ∠C=∠F, BC=EF或AC=DF
+                ],
+                aas: [
+                    [4, 5, 1], [4, 5, 2], [4, 5, 3],
+                    [4, 6, 1], [4, 6, 2], [4, 6, 3],
+                    [5, 6, 1], [5, 6, 2], [5, 6, 3],
+                    [5, 4, 1], [5, 4, 2], [5, 4, 3],
+                    [6, 4, 1], [6, 4, 2], [6, 4, 3],
+                    [6, 5, 1], [6, 5, 2], [6, 5, 3]
+                ],
+                asa: [[4, 1, 5], [5, 2, 6], [6, 3, 4], [4, 3, 6], [5, 1, 4], [6, 2, 5]]
+            };
+            
+            // 为卡片添加拖拽事件
+            cards.forEach(card => {
+                card.addEventListener('dragstart', dragStart);
+                card.addEventListener('dragend', dragEnd);
+            });
+            
+            // 为槽位添加拖拽事件
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', dragOver);
+                slot.addEventListener('dragenter', dragEnter);
+                slot.addEventListener('dragleave', dragLeave);
+                slot.addEventListener('drop', drop);
+            });
+            
+            // 关闭模态框
+            closeModalBtn.addEventListener('click', () => {
+                congratsModal.style.display = 'none';
+            });
+            
+            function dragStart() {
+                draggedCard = this;
+                setTimeout(() => {
+                    this.classList.add('dragging');
+                }, 0);
+            }
+            
+            function dragEnd() {
+                this.classList.remove('dragging');
+            }
+            
+            function dragOver(e) {
+                e.preventDefault();
+            }
+            
+            function dragEnter(e) {
+                e.preventDefault();
+                this.classList.add('highlight');
+            }
+            
+            function dragLeave() {
+                this.classList.remove('highlight');
+            }
+            
+            function drop() {
+                this.classList.remove('highlight');
+                
+                if (!draggedCard) return;
+                
+                const slotAccepted = this.getAttribute('data-accepted').split(',').map(Number);
+                const cardId = parseInt(draggedCard.getAttribute('data-id'));
+                const slotPosition = this.getAttribute('data-position');
+                const cardType = cardId <= 3 ? 'side' : 'angle';
+                
+                // 检查卡片是否可以被放入该槽位
+                if (slotAccepted.includes(cardId)) {
+                    // 检查位置限制
+                    if (slotPosition !== 'any' && slotPosition !== cardType) {
+                        return;
+                    }
+                    
+                    // 如果槽位已经有卡片，则返回
+                    if (this.innerHTML.trim() !== '') {
+                        return;
+                    }
+                    
+                    // 放入卡片
+                    this.innerHTML = draggedCard.innerHTML;
+                    this.setAttribute('data-card-id', cardId);
+                    this.classList.add('filled');
+                    
+                    // 检查当前规则的所有槽位是否都已填满
+                    const ruleCircle = this.closest('.rule-circle');
+                    const ruleSlots = ruleCircle.querySelectorAll('.rule-slot');
+                    const ruleName = ruleCircle.getAttribute('data-rule');
+                    
+                    let allFilled = true;
+                    const currentCombination = [];
+                    
+                    ruleSlots.forEach(slot => {
+                        if (!slot.classList.contains('filled')) {
+                            allFilled = false;
+                        } else {
+                            const cardId = parseInt(slot.getAttribute('data-card-id'));
+                            currentCombination.push(cardId);
+                        }
+                    });
+                    
+                    if (allFilled) {
+                        // 检查组合是否正确
+                        const combinations = correctCombinations[ruleName];
+                        let isCorrect = false;
+                        
+                        // 对于SAS规则，需要检查特定顺序
+                        if (ruleName === 'sas') {
+                            const side1Slot = ruleCircle.querySelector('[data-slot="side1"]');
+                            const angleSlot = ruleCircle.querySelector('[data-slot="angle"]');
+                            const side2Slot = ruleCircle.querySelector('[data-slot="side2"]');
+                            
+                            const side1 = parseInt(side1Slot.getAttribute('data-card-id'));
+                            const angle = parseInt(angleSlot.getAttribute('data-card-id'));
+                            const side2 = parseInt(side2Slot.getAttribute('data-card-id'));
+                            
+                            const currentSAS = [side1, angle, side2];
+                            
+                            // 检查是否为有效的SAS组合
+                            if ((angle === 4 && [1, 3].includes(side1) && [1, 3].includes(side2)) ||  // ∠A=∠D 组合
+                                (angle === 5 && [1, 2].includes(side1) && [1, 2].includes(side2)) ||  // ∠B=∠E 组合
+                                (angle === 6 && [2, 3].includes(side1) && [2, 3].includes(side2))) { // ∠C=∠F 组合
+                                isCorrect = true;
+                            }
+                        } else {
+                            // 其他规则不考虑顺序
+                            for (const combo of combinations) {
+                                if (JSON.stringify([...currentCombination].sort()) === JSON.stringify([...combo].sort())) {
+                                    isCorrect = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (isCorrect) {
+                            // 正确组合，增加分数
+                            score += 3;
+                            scoreDisplay.textContent = score;
+                            
+                            // 禁用该规则的所有槽位
+                            ruleSlots.forEach(slot => {
+                                slot.style.backgroundColor = 'rgba(81, 207, 102, 0.3)';
+                                slot.style.border = '1px solid #51cf66';
+                                slot.draggable = false;
+                            });
+                            
+                            // 检查是否全部完成
+                            checkCompletion();
+                        } else {
+                            // 错误组合，清空槽位
+                            setTimeout(() => {
+                                ruleSlots.forEach(slot => {
+                                    slot.innerHTML = '';
+                                    slot.removeAttribute('data-card-id');
+                                    slot.classList.remove('filled');
+                                });
+                            }, 500);
+                        }
+                    }
+                }
+            }
+            
+            function checkCompletion() {
+                const allSlots = document.querySelectorAll('.rule-slot');
+                let completed = true;
+                
+                allSlots.forEach(slot => {
+                    if (!slot.classList.contains('filled')) {
+                        completed = false;
+                    }
+                });
+                
+                if (completed) {
+                    setTimeout(() => {
+                        congratsModal.style.display = 'flex';
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
